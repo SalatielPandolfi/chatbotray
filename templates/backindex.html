@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ChatBot com Flask</title>
+  <style>
+    #chatbot-container {
+      width: 350px;
+      height: 500px;
+      margin: auto;
+      margin-top: 50px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+    #chat-output {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+    }
+    .user-message, .bot-message {
+      margin: 5px;
+      padding: 10px;
+      border-radius: 10px;
+      max-width: 80%;
+    }
+    .user-message {
+      background: #dcf8c6;
+      align-self: flex-end;
+    }
+    .bot-message {
+      background: #f1f0f0;
+      align-self: flex-start;
+    }
+    #chat-input {
+      display: flex;
+      border-top: 1px solid #ccc;
+    }
+    #chat-input input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      outline: none;
+    }
+    #chat-input button {
+      padding: 10px;
+      border: none;
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div id="chatbot-container">
+  <div id="chat-output"></div>
+  <div id="chat-input">
+    <input type="text" id="mensagem" placeholder="Digite sua dúvida...">
+    <button onclick="enviarMensagem()">Enviar</button>
+  </div>
+</div>
+
+<script>
+  async function enviarMensagem() {
+    const input = document.getElementById("mensagem");
+    const texto = input.value.trim();
+    if (!texto) return;
+
+    adicionarMensagem(texto, "user-message");
+    input.value = "";
+
+    const resposta = await fetch("/perguntar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mensagem: texto })
+    });
+
+    const dados = await resposta.json();
+    adicionarMensagem(dados.resposta, "bot-message");
+  }
+
+  function adicionarMensagem(texto, classe) {
+    const div = document.createElement("div");
+    div.className = classe;
+    div.textContent = texto;
+    document.getElementById("chat-output").appendChild(div);
+    document.getElementById("chat-output").scrollTop = document.getElementById("chat-output").scrollHeight;
+  }
+</script>
+
+</body>
+</html>
